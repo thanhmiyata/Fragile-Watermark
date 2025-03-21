@@ -25,6 +25,3 @@ def embed_watermark(image_path, watermark, output_path):
     watermarked_img = Image.fromarray(watermarked_img_array)
     watermarked_img.save(output_path)
     print(f"Watermark đã được nhúng và lưu tại {output_path}")
-
-# Ví dụ sử dụng
-embed_watermark('input_image.png', 'SecretMessage', 'watermarked_image.png')

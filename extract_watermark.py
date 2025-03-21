@@ -19,7 +19,3 @@ def extract_watermark(image_path, watermark_length):
         watermark += chr(int(byte, 2))
 
     return watermark
-
-# Ví dụ sử dụng
-extracted = extract_watermark('watermarked_image.png', len('SecretMessage'))
-print(f"Watermark trích xuất: {extracted}")
