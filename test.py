@@ -1,28 +1,43 @@
 import numpy as np
 from PIL import Image
+import os
 
 from embed_watermark import embed_watermark
-from extract_watermark import extract_watermark
+from extract_watermark import extract_and_verify, print_verification_result
 
-# Nhúng watermark vào hình ảnh gốc
+# Tạo thư mục output nếu chưa tồn tại
+if not os.path.exists('embed_image'):
+    os.makedirs('embed_image')
+
+# Nhúng watermark vào ảnh gốc
 original_image = 'image/image1.jpg'
-watermark = 'SecretMessage'
 watermarked_image = 'embed_image/watermarked_image.png'
-embed_watermark(original_image, watermark, watermarked_image)
+embed_watermark(original_image, watermarked_image)
 
-# Thay đổi một pixel trong hình ảnh đã nhúng
+print("\nKiểm tra ảnh gốc đã nhúng watermark:")
+result_original = extract_and_verify(watermarked_image)
+print_verification_result(result_original)
+
+# Thay đổi một pixel trong vùng ROI của ảnh đã nhúng watermark
 img = Image.open(watermarked_image)
 img_array = np.array(img)
-img_array[0, 0, 0] = 255  # Thay đổi pixel đầu tiên
+height, width = img_array.shape[:2]
+mid_h, mid_w = height // 2, width // 2
+
+# Thay đổi một vùng pixels trong ROI
+roi_h_start = mid_h - mid_h//4
+roi_h_end = mid_h + mid_h//4
+roi_w_start = mid_w - mid_w//4
+roi_w_end = mid_w + mid_w//4
+
+# Tạo một hình chữ nhật trắng trong ROI
+img_array[roi_h_start:roi_h_start+50, roi_w_start:roi_w_start+50] = [255, 255, 255]
+
 modified_img = Image.fromarray(img_array)
 modified_image_path = 'embed_image/modified_image.png'
 modified_img.save(modified_image_path)
 
-# Trích xuất watermark từ hình ảnh đã thay đổi
-extracted_modified = extract_watermark(modified_image_path, len(watermark))
-print(f"Watermark trích xuất sau khi thay đổi: {extracted_modified}")
-
-# Trích xuất watermark từ hình ảnh chưa thay đổi để so sánh
-extracted_original = extract_watermark(watermarked_image, len(watermark))
-print(f"Watermark trích xuất từ ảnh gốc: {extracted_original}")
+print("\nKiểm tra ảnh đã bị chỉnh sửa:")
+result_modified = extract_and_verify(modified_image_path)
+print_verification_result(result_modified)
 
